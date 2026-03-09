@@ -1,0 +1,45 @@
+---
+title: "WhatsApp Integration"
+description: "Connect, toggle, inspect, and remove WhatsApp integration from the dashboard."
+---
+
+## Where to manage
+
+Use the WhatsApp card on `/:siteId/integrations`.
+
+## Card states
+
+- Not connected: `Connect WhatsApp`
+- Connected: `Integration Details`
+- Active/inactive switch
+
+## Setup flow
+
+1. Click `Connect WhatsApp`
+2. Complete external onboarding steps
+3. Return to dashboard and verify connected state
+
+## Details modal fields
+
+- `phone_number_id`
+- `display_phone_number`
+- `business_name`
+
+## Operational actions
+
+- Toggle integration on/off using switch
+- Remove integration with `Delete`
+
+## Post-setup checks
+
+- Card shows connected state
+- Switch is on for production usage
+- Test message returns expected response behavior
+
+## Common issues
+
+- Setup completed but card not connected
+- Integration applied to wrong site
+- Delayed message processing
+
+First check selected site and current integration state.

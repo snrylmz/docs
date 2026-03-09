@@ -1,0 +1,83 @@
+---
+title: "Dashboard"
+description: "Operational summary for tenant health, action queue, and domain status."
+---
+
+`/dashboard` is your workspace control center.
+
+## What this screen answers quickly
+
+- Which sites are healthy or broken?
+- What requires immediate action?
+- Is credit usage at risk?
+- Are there pending team invitations?
+
+## KPI cards
+
+The top cards show:
+
+- Total domains
+- Online domains
+- Offline domains
+- Pending invitations
+- Total chats
+- Credit usage summary
+
+Operational hint:
+
+- If offline domains are non-zero, prioritize setup verification.
+- If usage grows fast, review billing plan early.
+
+## Quick action cards
+
+The system generates priority actions based on current state.
+
+Typical examples:
+
+- Review pending invites
+- Fix offline domains
+- Complete setup for unchecked domains
+- Review high credit usage
+
+## Domain health table
+
+Key columns:
+
+- Domain
+- Status: `online`, `offline`, `unchecked`
+- Last ping
+- Last check
+- Created at
+
+Row actions:
+
+- `Details` -> Domain information
+- `Setup` -> Widget setup
+- `Verify` -> Trigger widget verification
+
+## Status meaning
+
+- `online`: verified or recent widget ping exists
+- `offline`: widget not found
+- `unchecked`: not validated yet
+
+## Sidebar credit widget
+
+Bottom sidebar area shows:
+
+- Usage percentage
+- Used credits / monthly limit
+- Cycle end date
+- Risk class: normal, warning, critical
+
+Recommended thresholds:
+
+- 70%+: start usage review
+- 90%+: take immediate action
+
+## Daily operations routine
+
+1. Review quick action cards
+2. Clear offline/unchecked domains
+3. Note usage trend
+4. Trigger team or billing action if needed

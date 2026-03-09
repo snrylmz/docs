@@ -1,0 +1,49 @@
+---
+title: "Account Settings"
+description: "Guide for profile updates, password changes, and critical account actions."
+---
+
+## Scope
+
+On `/account`, users can:
+
+- Update profile fields
+- Change password
+- Trigger account/tenant deletion flow
+
+## Profile updates
+
+Editable fields:
+
+- First name
+- Last name
+- Phone
+
+Email is displayed as read-only.
+
+## Password change
+
+Fields:
+
+- Current password
+- New password
+- Confirm new password
+
+Rules:
+
+- New and confirm passwords must match
+- Current password is required when changing password
+
+## Confirmation dialogs
+
+Critical actions are guarded by confirmation prompts.
+This reduces accidental changes.
+
+## Deletion action
+
+Deletion is irreversible.
+Before deletion, confirm:
+
+- Another owner/admin is available if needed
+- Integrations and dependent operations are handled
+- Any required reporting data is exported

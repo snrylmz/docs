@@ -1,0 +1,193 @@
+---
+title: "M2M Code Samples"
+description: "Production-oriented cURL, JavaScript, and Python examples for integration teams."
+---
+
+## Shared variables
+
+```bash
+BASE_URL="https://api.uppzy.com/api/v1"
+API_KEY="<YOUR_API_KEY>"
+SITE_ID="<YOUR_SITE_ID>"
+TENANT_ID="<YOUR_TENANT_ID>"
+```
+
+## 1. Read tenant limits (cURL)
+
+```bash
+curl -s "$BASE_URL/m2m/tenants/$TENANT_ID/limits" \
+  -H "X-API-Key: $API_KEY"
+```
+
+## 2. Upload file document (cURL)
+
+```bash
+curl -X POST "$BASE_URL/m2m/sites/$SITE_ID/documents" \
+  -H "X-API-Key: $API_KEY" \
+  -F "file=@./docs/policy.pdf"
+```
+
+## 3. Create text document (cURL)
+
+```bash
+curl -X POST "$BASE_URL/m2m/sites/$SITE_ID/documents/text" \
+  -H "X-API-Key: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Support Hours",
+    "content": "We are available on weekdays between 09:00-18:00.",
+    "category": "support"
+  }'
+```
+
+## 4. Create QA document (cURL)
+
+```bash
+curl -X POST "$BASE_URL/m2m/sites/$SITE_ID/documents/qa" \
+  -H "X-API-Key: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Delivery FAQ",
+    "question": "Do you offer same-day delivery?",
+    "answer": "It depends on location; exact ETA is shown at checkout.",
+    "category": "faq"
+  }'
+```
+
+## 5. Send sync chat (cURL)
+
+```bash
+curl -X POST "$BASE_URL/m2m/sites/$SITE_ID/chat" \
+  -H "X-API-Key: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": "sess_1001",
+    "email": "user@example.com",
+    "message": "How does the return process work?",
+    "response_language": "en"
+  }'
+```
+
+## 6. Send async chat + poll status (cURL)
+
+```bash
+REQ_ID=$(curl -s -X POST "$BASE_URL/m2m/sites/$SITE_ID/chat/async" \
+  -H "X-API-Key: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"session_id":"sess_2001","message":"Check my order status"}' | jq -r '.request_id')
+
+curl -s "$BASE_URL/m2m/sites/$SITE_ID/chat/requests/$REQ_ID" \
+  -H "X-API-Key: $API_KEY"
+```
+
+## 7. Submit feedback (cURL)
+
+```bash
+curl -X POST "$BASE_URL/m2m/sites/$SITE_ID/chat/feedback" \
+  -H "X-API-Key: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": "sess_2001",
+    "request_id": "req_123",
+    "feedback": "good"
+  }'
+```
+
+## 8. Close session (cURL)
+
+```bash
+curl -X POST "$BASE_URL/m2m/sites/$SITE_ID/chat/session/close" \
+  -H "X-API-Key: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"session_id":"sess_2001"}'
+```
+
+## 9. JavaScript client (Node.js)
+
+```js
+const BASE_URL = "https://api.uppzy.com/api/v1";
+const API_KEY = process.env.UPPZY_API_KEY;
+
+async function m2m(path, options = {}) {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      "X-API-Key": API_KEY,
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`HTTP ${res.status}: ${body}`);
+  }
+
+  return res.json();
+}
+
+export const sendChat = (siteId, payload) =>
+  m2m(`/m2m/sites/${siteId}/chat`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const sendChatAsync = (siteId, payload) =>
+  m2m(`/m2m/sites/${siteId}/chat/async`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const getChatRequest = (siteId, requestId) =>
+  m2m(`/m2m/sites/${siteId}/chat/requests/${requestId}`);
+
+export const getSiteStatistics = (siteId) =>
+  m2m(`/m2m/sites/${siteId}/statistics`);
+```
+
+## 10. Python client (requests)
+
+```python
+import os
+import requests
+
+BASE_URL = "https://api.uppzy.com/api/v1"
+API_KEY = os.environ["UPPZY_API_KEY"]
+
+
+def m2m(path: str, method: str = "GET", json=None, files=None):
+    resp = requests.request(
+        method,
+        f"{BASE_URL}{path}",
+        headers={"X-API-Key": API_KEY},
+        json=json,
+        files=files,
+        timeout=30,
+    )
+    resp.raise_for_status()
+    if resp.text:
+        return resp.json()
+    return None
+
+
+def chat(site_id: str, message: str, session_id: str):
+    payload = {
+        "session_id": session_id,
+        "message": message,
+        "response_language": "en",
+    }
+    return m2m(f"/m2m/sites/{site_id}/chat", method="POST", json=payload)
+
+
+def chat_async(site_id: str, message: str, session_id: str):
+    payload = {"session_id": session_id, "message": message}
+    return m2m(f"/m2m/sites/{site_id}/chat/async", method="POST", json=payload)
+```
+
+## 11. Minimum production smoke flow
+
+1. Validate `limits`
+2. Upload one document
+3. Test sync chat
+4. Test async chat + polling
+5. Test feedback and statistics reads

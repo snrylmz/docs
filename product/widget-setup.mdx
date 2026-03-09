@@ -1,0 +1,99 @@
+---
+title: "Widget Setup"
+description: "Detailed guide for configuring content, behavior, styling, and embed deployment."
+---
+
+`/:siteId/setup/widget` controls full chatbot behavior and appearance.
+
+## Recommended setup order
+
+1. Content
+2. Agent
+3. Style
+4. Embed
+5. Live test
+
+## 1. Content tab
+
+### Fields
+
+- `displayName`
+- `initialMessage`
+- `suggestedQuestion1/2/3`
+- `footer`
+- `collectUserFeedback`
+- `dailyUserMessageLimit`
+- `responseLanguageMode` (`auto` / `forced`)
+- `defaultLanguage`
+
+### Practical guidance
+
+- Keep initial message short and task-oriented
+- Use suggested questions based on real user intent
+- Start multilingual setups with `auto`, then evaluate quality
+
+## 2. Agent tab
+
+### Fields
+
+- `agentRolePreset`
+- `agentCustomPrompt`
+- `defaultModel`
+- `temperature`
+
+### Preset selection hints
+
+- `customer_support` for support operations
+- `sales_presales` for plan and product questions
+- `documentation_technical` for technical guidance
+- `general_ai` for broad usage
+
+### Temperature interpretation
+
+- Lower: more stable/predictable
+- Higher: more flexible/creative
+
+## 3. Style tab
+
+### Fields
+
+- `theme` (light/dark/system)
+- `profilePictureUrl`
+- `chatBubbleIconUrl`
+- `primaryColor`
+- `iconColor`
+- `bubblePosition`
+
+### Upload rules
+
+- Formats: png/jpg/jpeg/webp/svg
+- Max size: 100KB
+
+### UI recommendation
+
+- Keep brand contrast readable on desktop and mobile
+
+## 4. Embed tab
+
+```html
+<script>window.__AI_WIDGET__ = { siteKey: "<PUBLIC_KEY>" };</script>
+<script src="https://api.uppzy.com/widget/widget.js" async></script>
+```
+
+Implementation note:
+
+- Add this to your shared layout before `</body>` for full-site coverage.
+
+## 5. Post-setup test checklist
+
+1. Initial greeting is correct
+2. Suggested questions behave correctly
+3. Response language behavior is expected
+4. Visual style is correct on mobile
+5. Feedback controls are visible (if enabled)
+
+## API mapping
+
+- `GET /sites/{id}/widget-config`
+- `PATCH /sites/{id}/widget-config`
+- `GET /widget/config/{publicKey}`

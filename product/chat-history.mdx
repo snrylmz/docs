@@ -1,0 +1,58 @@
+---
+title: "Chat History"
+description: "Session-level filtering and conversation inspection for user-specific troubleshooting."
+---
+
+`/:siteId/chat-history/:email` is built for deep investigation of one user's conversation history.
+
+## Screen structure
+
+- Left panel: session list
+- Right panel: selected conversation
+- Top bar: filters and navigation
+
+On mobile, list and detail open in separate steps.
+
+## Filters
+
+Available filters:
+
+- Text search
+- Session status (`open`, `closed`)
+- Sort (newest/oldest/tokens/cost/duration/question count)
+- Date range
+- Topics
+- Sentiments
+
+## Session list interpretation
+
+Typical fields per row:
+
+- Session ID
+- First/last message preview
+- Created date
+- Token/cost/duration summary
+
+## Conversation panel
+
+For selected session:
+
+- Full message stream
+- Session-level metrics
+- User totals (sessions, questions, tokens, cost)
+
+## Practical investigation workflow
+
+1. Open target email history
+2. Narrow by date range
+3. Filter to relevant topic/sentiment
+4. Inspect exact question-answer flow
+5. Apply fix in knowledge base or agent settings
+
+## Operational note
+
+If the same issue repeats across sessions, prefer root-cause fixes:
+
+- knowledge base updates
+- QA coverage improvements
+- agent prompt/model tuning

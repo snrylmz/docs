@@ -1,0 +1,76 @@
+---
+title: "Analytics and Quality"
+description: "How to monitor performance and response quality across all analytics screens."
+---
+
+Use this section to measure both traffic volume and answer quality.
+
+## 1. Site Summary (`/:siteId/statistics`)
+
+Main KPIs:
+
+- `total_chats`
+- `unique_users`
+- `average_session_duration_seconds`
+- `total_tokens`
+- `total_cost_usd`
+
+The user table below lets you open chat details by user.
+
+## 2. Topic analysis (`/:siteId/statistics/topic`)
+
+Shows user intent distribution.
+
+Metrics:
+
+- Total topics
+- Most common topic
+- Analyzed sessions
+- Unanalyzed sessions
+
+Action:
+
+- `Analyze Now` triggers topic analysis manually.
+
+## 3. Sentiment analysis (`/:siteId/statistics/sentiment`)
+
+Shows tone distribution:
+
+- Positive/neutral/negative session counts
+- Average sentiment score
+- Analyzed vs unanalyzed sessions
+
+## 4. Feedback analysis (`/:siteId/statistics/feedback`)
+
+Quality-focused metrics:
+
+- Rated responses
+- Helpful rate
+- Good/Bad counts
+- Feedback rate
+- Confidence bucket distribution
+
+Critical table:
+
+- `recent_bad_examples` for low-quality response samples
+
+## 5. All Sessions (`/:siteId/statistics/all-sessions`)
+
+Operational table columns:
+
+- User
+- Session ID
+- Status
+- Message count
+- Tokens
+- Cost
+- Duration
+- Last activity
+
+## Suggested optimization loop
+
+1. Detect anomalies in summary KPIs
+2. Narrow causes with topic/sentiment
+3. Validate quality with feedback
+4. Inspect concrete sessions in Chat History
+5. Improve widget settings or knowledge base

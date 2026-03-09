@@ -1,0 +1,58 @@
+---
+title: "Tenants and Sites"
+description: "Tenant switching, site lifecycle, and domain detail workflows."
+---
+
+## Tenant switching
+
+If a user belongs to multiple tenants, the tenant switcher is available in the top bar.
+Switching tenant reloads panel data for the selected workspace.
+
+Recommendation:
+
+- Use clear naming conventions for similar tenant names.
+
+## Domain list (`/domains`)
+
+Each site card shows:
+
+- Domain
+- Verification state
+- Last check timestamp
+- View and delete actions
+
+## Add domain flow
+
+In `New Domain` sheet:
+
+1. Enter domain
+2. Input is normalized
+3. Format is validated
+4. Site is created
+
+## Domain Information (`/:siteId/domain-information`)
+
+Main fields:
+
+- Domain
+- Public key
+- Created date
+- Connection state
+- Last widget check
+- Last widget ping
+
+This screen also provides quick navigation to setup.
+
+## Domain deletion
+
+Domain can be removed from the domain card action.
+
+Operational note:
+
+- Validate dependencies before deleting (integrations, reporting, routing logic).
+
+## Recommended site operations
+
+- Assign setup owner per new domain
+- Record verification completion
+- Keep offline domains near zero weekly

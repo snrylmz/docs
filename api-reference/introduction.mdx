@@ -1,33 +1,25 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API Reference"
+description: "OpenAPI-driven reference for API key creation and M2M integration endpoints."
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+This section maps to `documents/api-reference/openapi.json`.
 
-## Welcome
+## Base path
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
-
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
-
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+```text
+/api/v1
 ```
+
+## Included endpoint scope
+
+- API key creation endpoint
+- M2M chat endpoints
+- M2M document endpoints
+- M2M statistics and sessions endpoints
+
+## Recommended reading order
+
+1. `/developer/api-authentication`
+2. `/developer/m2m-api`
+3. `/developer/m2m-code-samples`

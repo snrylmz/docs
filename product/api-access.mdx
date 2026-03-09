@@ -1,0 +1,54 @@
+---
+title: "API Access"
+description: "How product teams prepare API keys for technical teams using M2M integration."
+---
+
+This page helps non-developer stakeholders manage API key lifecycle safely.
+
+## Access prerequisites
+
+- Plan: `level2` or `level3`
+- Role: `owner`
+
+## What is available on API Access screen
+
+- Create new API key
+- Optional expiry date
+- Rotate key
+- Revoke key
+- View usage metadata
+
+## Suggested key naming pattern
+
+Use purpose-based names:
+
+- `prod-main-app`
+- `staging-api`
+- `crm-integration`
+
+## Create flow
+
+1. Enter key name
+2. Set optional expiry
+3. Click `Create API Key`
+4. Save plaintext key securely
+
+## Rotate flow
+
+1. Prepare app config for new key
+2. Rotate key in panel
+3. Deploy with new key
+4. Verify traffic
+5. Revoke old key if not needed
+
+## Revoke flow
+
+- Revoke unused keys quickly
+- Avoid keeping stale active keys
+
+## Quick connectivity test
+
+```bash
+curl -X GET "https://api.uppzy.com/api/v1/m2m/tenants/<TENANT_ID>/limits" \
+  -H "X-API-Key: <YOUR_API_KEY>"
+```

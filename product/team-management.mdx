@@ -1,0 +1,50 @@
+---
+title: "Team Management"
+description: "Role model, invitation lifecycle, and safe member management standards."
+---
+
+## Team page structure
+
+`/settings/team` contains two core tables:
+
+- Active members
+- Pending invitations
+
+## Roles
+
+- `owner`: full management authority
+- `admin`: operational management authority
+- `member`: usage-focused access
+
+## Permission matrix (summary)
+
+- Invite member: owner, admin
+- Cancel invitation: owner, admin
+- Change role: owner
+- Remove member: role-restricted owner/admin actions
+
+## Invitation flow
+
+1. Open `Invite Member`
+2. Enter email and role
+3. Send invitation
+4. Track status in pending invitations
+
+## Invite acceptance
+
+Invited users accept from tokenized invitation page.
+Upon acceptance, membership is activated in that tenant.
+
+## Role updates
+
+Owner can change role for eligible members directly in table controls.
+
+## Member removal
+
+Eligible users can remove members through row actions.
+
+## Team governance recommendations
+
+- Maintain at least two owner/admin users per tenant
+- Clean stale invitations weekly
+- Remove former team members on the same day

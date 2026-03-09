@@ -1,0 +1,68 @@
+---
+title: "M2M Integration Guidelines"
+description: "Production standards for resilience, observability, and maintainable integration architecture."
+---
+
+## 1. Key lifecycle
+
+- Use separate keys per environment (`dev`, `staging`, `prod`)
+- Never store keys in source code
+- Use a secret manager or secure CI variables
+- Schedule rotation windows
+
+## 2. HTTP client baseline
+
+Every client should enforce:
+
+- Connection timeout
+- Read timeout
+- Retries only for transient failures
+- Request correlation identifiers in logs
+
+## 3. Error handling policy
+
+- `400/401/403/404`: fix payload/config/permissions, do not blind-retry
+- `429`: backoff and retry
+- `5xx`: bounded retries with exponential backoff
+
+## 4. Async chat policy
+
+- Use stable polling interval (for example 2-3s)
+- Define maximum wait time
+- Implement fallback path for `failed` status
+
+## 5. Session strategy
+
+- Keep deterministic `session_id` strategy per channel/user
+- Avoid long-lived idle sessions
+- Close session explicitly when business flow ends
+
+## 6. Document operations
+
+- Validate quality before activation
+- Activate only approved content
+- Use bulk endpoints for consistent state updates
+
+## 7. Observability
+
+Track at minimum:
+
+- Success/failure rate by endpoint
+- Latency percentiles
+- 429 and 5xx trends
+- Chat completion time
+- Feedback distribution
+
+## 8. Change management
+
+- Maintain integration changelog
+- Make staging smoke tests mandatory before production
+- Keep docs and code changes in sync
+
+## 9. Runbook checklist
+
+- Correct key for correct environment
+- Correct tenant/site IDs
+- Critical documents active
+- Sync + async test suite passing
+- Monitoring alerts active

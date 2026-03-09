@@ -1,0 +1,51 @@
+---
+title: "Authentication and Access"
+description: "End-user guide for registration, sign-in, password reset, and invitation acceptance."
+---
+
+## Sign-in methods
+
+- Email + password
+- Google sign-in
+
+## Registration flow
+
+On `/register`, users provide:
+
+- Full name
+- Email
+- Password
+- Password confirmation
+
+On success, users are redirected to login.
+
+## Login flow
+
+On `/login`, users can sign in with:
+
+- Email/password
+- Google sign-in
+
+## Password reset flow
+
+1. Submit email on `/forgot-password`
+2. Open reset link from email
+3. Set new password on `/reset-password?token=...`
+
+## Invitation acceptance flow
+
+Team invites open on `invitations/{token}`.
+The screen handles:
+
+- Valid invite
+- Expired invite
+- Invalid token
+- Email mismatch with current session
+
+After acceptance, user is switched to the invited tenant.
+
+## Operational recommendations
+
+- Use work email for invites and acceptance
+- Keep owner/admin users recoverable
+- Review pending invites regularly

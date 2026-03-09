@@ -1,0 +1,134 @@
+---
+title: "Quickstart"
+description: "Step-by-step path to get Uppzy live quickly."
+---
+
+This guide is optimized for fast production rollout.
+
+## Before you start
+
+Have these ready:
+
+- The domain where you will embed the chatbot
+- At least one `owner` user in your team
+- Initial content documents (PDF/DOC/DOCX/TXT or text)
+
+## 1. Create an account and sign in
+
+- Register from `/register` or use Google sign-in.
+- After sign-in, you are routed to your active tenant.
+
+Expected result:
+
+- You can see `Dashboard` and `Domains` in the sidebar.
+
+## 2. Add your domain (site)
+
+- Go to `Domains` and click `New Domain`.
+- Enter your domain.
+
+Valid example:
+
+- `example.com`
+
+Also accepted (normalized by UI):
+
+- `https://example.com`
+- `www.example.com`
+
+Expected result:
+
+- The domain card appears in the list.
+
+## 3. Check domain details
+
+Open `/:siteId/domain-information` and verify:
+
+- Domain
+- Public key
+- Connection status
+- Last widget check/ping
+
+Expected result:
+
+- Public key is visible and ready for embedding.
+
+## 4. Configure widget settings
+
+Go to `/:siteId/setup/widget` and complete all tabs:
+
+1. Content
+2. Agent
+3. Style
+4. Embed
+
+Expected result:
+
+- Preview panel reflects your saved settings.
+
+## 5. Add embed code to your website
+
+Use the code from the Embed tab and place it before `</body>`:
+
+```html
+<script>window.__AI_WIDGET__ = { siteKey: "<PUBLIC_KEY>" };</script>
+<script src="https://api.uppzy.com/widget/widget.js" async></script>
+```
+
+Expected result:
+
+- Widget bubble appears on your site.
+
+## 6. Load your knowledge base
+
+Use `Reference Documents`:
+
+- `Files`
+- `Texts`
+- `QA`
+
+Recommended first batch:
+
+1. Core FAQ files
+2. Core policy/process text
+3. 10-20 high-frequency Q&A pairs
+
+## 7. Activate documents
+
+In document list, check status:
+
+- `active`: usable by chatbot
+- `draft`: not used for responses
+
+Set critical documents to `active` before launch.
+
+## 8. Run first validation
+
+- Check site state in Dashboard health table.
+- Trigger `Verify` if needed.
+- Ask 5-10 test prompts on the live site.
+
+Suggested test set:
+
+- Known FAQ question
+- Ambiguous question
+- Multi-step question
+- Question requiring missing data
+
+## 9. Monitor week one
+
+Track daily:
+
+- `Statistics` summary
+- `Topic` distribution
+- `Sentiment` distribution
+- `Feedback` quality
+- `Chat History` details
+
+## Launch checklist
+
+- Domain added
+- Widget visible
+- Critical documents active
+- Test prompts pass quality bar
+- Team roles are assigned (at least one owner/admin)

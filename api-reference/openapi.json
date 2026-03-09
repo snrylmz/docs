@@ -1,216 +1,2460 @@
 {
-  "openapi": "3.1.0",
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
+    "description": "Multi-tenant RAG + LLM site assistant API.",
+    "title": "AI Site Assistant API",
+    "contact": {},
+    "version": "1.0"
   },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
+  "basePath": "/api/v1",
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/m2m/sites/{id}/chat": {
       "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+        "description": "Sends a chat message using tenant API key authentication. Site context is derived from site ID path parameter.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Send M2M chat message",
         "parameters": [
           {
+            "type": "string",
+            "description": "Site ID",
             "name": "id",
             "in": "path",
-            "description": "ID of plant to delete",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Tenant API key",
+            "name": "X-API-Key",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "M2M chat request",
+            "name": "request",
+            "in": "body",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "$ref": "#/definitions/main.M2MChatRequest"
             }
           }
         ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/main.ChatResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m2m/sites/{id}/chat/async": {
+      "post": {
+        "description": "Creates an async chat request and returns a request ID for polling.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Send M2M async chat message",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Site ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Tenant API key",
+            "name": "X-API-Key",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "M2M async chat request",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/main.M2MChatRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "schema": {
+              "$ref": "#/definitions/main.ChatAsyncResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m2m/sites/{id}/chat/requests/{requestId}": {
+      "get": {
+        "description": "Returns status of an async chat request by request ID.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Get M2M chat request status",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Site ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Request ID",
+            "name": "requestId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Tenant API key",
+            "name": "X-API-Key",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/main.ChatRequestStatusResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m2m/sites/{id}/documents": {
+      "get": {
+        "description": "Auto-generated from routes.go to keep Swagger coverage complete.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Auto-documented endpoint (GET /m2m/sites/{id}/documents)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Auto-generated from routes.go to keep Swagger coverage complete.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Auto-documented endpoint (POST /m2m/sites/{id}/documents)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Request body",
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/main.SwaggerSupplementalBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m2m/sites/{id}/documents/qa": {
+      "post": {
+        "description": "Auto-generated from routes.go to keep Swagger coverage complete.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Auto-documented endpoint (POST /m2m/sites/{id}/documents/qa)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Request body",
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/main.SwaggerSupplementalBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m2m/sites/{id}/documents/text": {
+      "post": {
+        "description": "Auto-generated from routes.go to keep Swagger coverage complete.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Auto-documented endpoint (POST /m2m/sites/{id}/documents/text)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Request body",
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/main.SwaggerSupplementalBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m2m/sites/{id}/sessions": {
+      "get": {
+        "description": "Auto-generated from routes.go to keep Swagger coverage complete.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Auto-documented endpoint (GET /m2m/sites/{id}/sessions)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/m2m/sites/{id}/statistics": {
+      "get": {
+        "description": "Auto-generated from routes.go to keep Swagger coverage complete.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "m2m"
+        ],
+        "summary": "Auto-documented endpoint (GET /m2m/sites/{id}/statistics)",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tenants/{id}/api-access/keys": {
+      "get": {
+        "description": "Returns all API keys for a tenant. Only tenant owner can access this endpoint and only for level2/level3 plans.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "api_access"
+        ],
+        "summary": "List tenant API keys",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Tenant ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Bearer access token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/main.TenantAPIKeyListResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new tenant-scoped API key. The plaintext API key is returned only once in this response.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "api_access"
+        ],
+        "summary": "Create tenant API key",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Tenant ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Bearer access token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "description": "Create API key payload",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/main.CreateTenantAPIKeyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/main.CreateTenantAPIKeyResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
           }
         }
       }
     }
   },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
+  "definitions": {
+    "main.AIProvider": {
+      "type": "string",
+      "enum": [
+        "openai",
+        "anthropic",
+        "gemini",
+        "grok"
+      ],
+      "x-enum-varnames": [
+        "AIProviderOpenAI",
+        "AIProviderAnthropic",
+        "AIProviderGemini",
+        "AIProviderGrok"
+      ]
+    },
+    "main.AccountLimits": {
+      "type": "object",
+      "properties": {
+        "account_type": {
+          "$ref": "#/definitions/main.AccountType"
+        },
+        "available_models": {
+          "type": "array",
+          "items": {
             "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          }
+        },
+        "max_document_size_bytes": {
+          "type": "integer"
+        },
+        "max_document_size_mb": {
+          "type": "integer"
+        },
+        "max_documents": {
+          "type": "integer"
+        },
+        "max_team_members": {
+          "type": "integer"
+        },
+        "max_total_doc_size_bytes": {
+          "type": "integer"
+        },
+        "max_total_doc_size_mb": {
+          "type": "integer"
+        },
+        "monthly_message_credits": {
+          "type": "integer"
+        },
+        "paid_features_enabled": {
+          "type": "boolean"
+        },
+        "slack_integration": {
+          "type": "boolean"
+        },
+        "team_features_enabled": {
+          "type": "boolean"
+        },
+        "whatsapp_integration": {
+          "type": "boolean"
+        }
+      }
+    },
+    "main.AccountType": {
+      "type": "string",
+      "enum": [
+        "free",
+        "level1",
+        "level2",
+        "level3"
+      ],
+      "x-enum-varnames": [
+        "AccountTypeFree",
+        "AccountTypeLevel1",
+        "AccountTypeLevel2",
+        "AccountTypeLevel3"
+      ]
+    },
+    "main.AuthResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/main.User"
+        }
+      }
+    },
+    "main.AvailableModelsResponse": {
+      "type": "object",
+      "properties": {
+        "account_type": {
+          "$ref": "#/definitions/main.AccountType"
+        },
+        "default_model": {
+          "type": "string"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.ModelWithPricing"
           }
         }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
+      }
+    },
+    "main.BulkDocumentRequest": {
+      "type": "object",
+      "properties": {
+        "docIds": {
+          "type": "array",
+          "items": {
             "type": "string"
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+    "main.BulkDocumentStatusRequest": {
+      "type": "object",
+      "properties": {
+        "docIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "is_active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "main.BulkOperationResult": {
+      "type": "object",
+      "properties": {
+        "deleted": {
+          "type": "integer"
+        },
+        "updated": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.ChatAsyncResponse": {
+      "type": "object",
+      "properties": {
+        "placeholder": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "main.ChatRequest": {
+      "type": "object",
+      "required": [
+        "message",
+        "site_public_key"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "model": {
+          "description": "AI model to use, defaults to site's default_model or gpt-4o-mini",
+          "type": "string"
+        },
+        "response_language": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "site_public_key": {
+          "type": "string"
+        },
+        "ui_locale": {
+          "type": "string"
+        }
+      }
+    },
+    "main.ChatRequestStatusResponse": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "status": {
+          "description": "pending, completed, failed",
+          "type": "string"
+        }
+      }
+    },
+    "main.ChatResponse": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string"
+        },
+        "confidence_level": {
+          "type": "string"
+        },
+        "confidence_score": {
+          "type": "integer"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        }
+      }
+    },
+    "main.CreateSiteRequest": {
+      "type": "object",
+      "required": [
+        "domain",
+        "tenant_id"
+      ],
+      "properties": {
+        "avatar_url": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "llm_nickname": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        }
+      }
+    },
+    "main.CreateTenantAPIKeyRequest": {
+      "type": "object",
+      "properties": {
+        "expires_at": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "main.CreateTenantAPIKeyResponse": {
+      "type": "object",
+      "properties": {
+        "api_key": {
+          "type": "string"
+        },
+        "key": {
+          "$ref": "#/definitions/main.TenantAPIKeyItemResponse"
+        }
+      }
+    },
+    "main.CreateTenantRequest": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "account_type": {
+          "$ref": "#/definitions/main.AccountType"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "main.DocumentTextResponse": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        }
+      }
+    },
+    "main.FeedbackBadExample": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "question": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        }
+      }
+    },
+    "main.FeedbackConfidenceBucket": {
+      "type": "object",
+      "properties": {
+        "bad_count": {
+          "type": "integer"
+        },
+        "good_count": {
+          "type": "integer"
+        },
+        "helpful_rate": {
+          "type": "number"
+        },
+        "level": {
+          "type": "string"
+        },
+        "rated_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.ForgotPasswordRequest": {
+      "type": "object",
+      "required": [
+        "email"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "main.ForgotPasswordResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "main.LoginRequest": {
+      "type": "object",
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "main.M2MChatRequest": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "response_language": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "ui_locale": {
+          "type": "string"
+        }
+      }
+    },
+    "main.M2MCloseSessionRequest": {
+      "type": "object",
+      "required": [
+        "session_id"
+      ],
+      "properties": {
+        "session_id": {
+          "type": "string"
+        }
+      }
+    },
+    "main.M2MSubmitFeedbackRequest": {
+      "type": "object",
+      "required": [
+        "feedback",
+        "request_id",
+        "session_id"
+      ],
+      "properties": {
+        "feedback": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        }
+      }
+    },
+    "main.MeResponse": {
+      "type": "object",
+      "properties": {
+        "active_tenant": {
+          "$ref": "#/definitions/main.TenantInfo"
+        },
+        "tenants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.TenantInfo"
+          }
+        },
+        "user": {
+          "$ref": "#/definitions/main.User"
+        }
+      }
+    },
+    "main.ModelWithPricing": {
+      "type": "object",
+      "properties": {
+        "credit_multiplier": {
+          "type": "integer"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "input_cost_per_1m": {
+          "type": "number"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "is_selectable": {
+          "type": "boolean"
+        },
+        "model": {
+          "type": "string"
+        },
+        "model_id": {
+          "type": "string"
+        },
+        "model_key": {
+          "type": "string"
+        },
+        "output_cost_per_1m": {
+          "type": "number"
+        },
+        "provider": {
+          "$ref": "#/definitions/main.AIProvider"
+        },
+        "provider_key_configured": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "main.QuestionStat": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer"
+        },
+        "question": {
+          "type": "string"
+        }
+      }
+    },
+    "main.RefreshTokenResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "main.RegisterRequest": {
+      "type": "object",
+      "required": [
+        "email",
+        "name",
+        "password",
+        "surname"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "tenant_name": {
+          "type": "string"
+        }
+      }
+    },
+    "main.ResetPasswordRequest": {
+      "type": "object",
+      "required": [
+        "password",
+        "token"
+      ],
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "main.ResetPasswordResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "main.RotateTenantAPIKeyRequest": {
+      "type": "object",
+      "properties": {
+        "expires_at": {
+          "type": "string"
+        }
+      }
+    },
+    "main.SentimentStatItem": {
+      "type": "object",
+      "properties": {
+        "average_confidence": {
+          "type": "number"
+        },
+        "average_score": {
+          "type": "number"
+        },
+        "count": {
+          "type": "integer"
+        },
+        "example_messages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "percentage": {
+          "type": "number"
+        },
+        "sentiment": {
+          "type": "string"
+        }
+      }
+    },
+    "main.SentimentStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "average_sentiment_score": {
+          "type": "number"
+        },
+        "negative_sessions": {
+          "type": "integer"
+        },
+        "neutral_sessions": {
+          "type": "integer"
+        },
+        "overall_sentiment": {
+          "type": "string"
+        },
+        "positive_sessions": {
+          "type": "integer"
+        },
+        "sentiments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.SentimentStatItem"
+          }
+        },
+        "sessions_analyzed": {
+          "type": "integer"
+        },
+        "total_sentiments": {
+          "type": "integer"
+        },
+        "unanalyzed_sessions": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.Site": {
+      "type": "object",
+      "properties": {
+        "avatar_url": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_widget_check": {
+          "type": "string"
+        },
+        "last_widget_ping": {
+          "type": "string"
+        },
+        "llm_nickname": {
+          "type": "string"
+        },
+        "public_key": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "widget_status": {
+          "type": "string"
+        }
+      }
+    },
+    "main.SiteDocument": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "chunks_count": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "indexed": {
+          "type": "boolean"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "mime_type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "site_id": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.SiteFeedbackStatistics": {
+      "type": "object",
+      "properties": {
+        "bad_count": {
+          "type": "integer"
+        },
+        "confidence_buckets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.FeedbackConfidenceBucket"
+          }
+        },
+        "feedback_rate": {
+          "type": "number"
+        },
+        "good_count": {
+          "type": "integer"
+        },
+        "helpful_rate": {
+          "type": "number"
+        },
+        "rated_responses": {
+          "type": "integer"
+        },
+        "recent_bad_examples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.FeedbackBadExample"
+          }
+        },
+        "total_completed_responses": {
+          "type": "integer"
+        },
+        "unrated_responses": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.SiteSessionItem": {
+      "type": "object",
+      "properties": {
+        "closed_at": {
+          "type": "string"
+        },
+        "cost_usd": {
+          "type": "number"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "last_activity_at": {
+          "type": "string"
+        },
+        "message_count": {
+          "type": "integer"
+        },
+        "session_duration_seconds": {
+          "type": "integer"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "session_status": {
+          "type": "string"
+        },
+        "total_completion_tokens": {
+          "type": "integer"
+        },
+        "total_prompt_tokens": {
+          "type": "integer"
+        },
+        "total_tokens": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.SiteSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.SiteSessionItem"
+          }
+        },
+        "total_sessions": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.SiteStatistics": {
+      "type": "object",
+      "properties": {
+        "average_session_duration_seconds": {
+          "description": "seconds",
+          "type": "integer"
+        },
+        "max_session_duration_seconds": {
+          "description": "seconds",
+          "type": "integer"
+        },
+        "min_session_duration_seconds": {
+          "description": "seconds",
+          "type": "integer"
+        },
+        "top_questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.QuestionStat"
+          }
+        },
+        "total_chats": {
+          "type": "integer"
+        },
+        "total_completion_tokens": {
+          "type": "integer"
+        },
+        "total_prompt_tokens": {
+          "type": "integer"
+        },
+        "total_tokens": {
+          "type": "integer"
+        },
+        "unique_users": {
+          "type": "integer"
+        },
+        "user_emails": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.SiteUserSummary"
+          }
+        }
+      }
+    },
+    "main.SiteUserStatistics": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.UserSessionStats"
+          }
+        },
+        "site_id": {
+          "type": "string"
+        },
+        "total_completion_tokens": {
+          "type": "integer"
+        },
+        "total_cost_usd": {
+          "type": "number"
+        },
+        "total_prompt_tokens": {
+          "type": "integer"
+        },
+        "total_questions": {
+          "type": "integer"
+        },
+        "total_session_duration_seconds": {
+          "type": "integer"
+        },
+        "total_sessions": {
+          "type": "integer"
+        },
+        "total_tokens": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.SiteUserSummary": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "total_completion_tokens": {
+          "type": "integer"
+        },
+        "total_cost_usd": {
+          "type": "number"
+        },
+        "total_prompt_tokens": {
+          "type": "integer"
+        },
+        "total_questions": {
+          "type": "integer"
+        },
+        "total_session_duration_seconds": {
+          "type": "integer"
+        },
+        "total_sessions": {
+          "type": "integer"
+        },
+        "total_tokens": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.SubmitFeedbackRequest": {
+      "type": "object",
+      "required": [
+        "feedback",
+        "request_id",
+        "session_id",
+        "site_public_key"
+      ],
+      "properties": {
+        "feedback": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "site_public_key": {
+          "type": "string"
+        }
+      }
+    },
+    "main.SubmitFeedbackResponse": {
+      "type": "object",
+      "properties": {
+        "feedback": {
+          "type": "string"
+        },
+        "feedback_submitted_at": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "main.SwaggerSupplementalBody": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "main.SwitchTenantRequest": {
+      "type": "object",
+      "required": [
+        "tenant_id"
+      ],
+      "properties": {
+        "tenant_id": {
+          "type": "string"
+        }
+      }
+    },
+    "main.Tenant": {
+      "type": "object",
+      "properties": {
+        "account_type": {
+          "$ref": "#/definitions/main.AccountType"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "main.TenantAPIKeyItemResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "key_prefix": {
+          "type": "string"
+        },
+        "last_used_at": {
+          "type": "string"
+        },
+        "last_used_ip": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "revoked_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "use_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.TenantAPIKeyListResponse": {
+      "type": "object",
+      "properties": {
+        "keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.TenantAPIKeyItemResponse"
+          }
+        }
+      }
+    },
+    "main.TenantInfo": {
+      "type": "object",
+      "properties": {
+        "account_type": {
+          "$ref": "#/definitions/main.AccountType"
+        },
+        "role": {
+          "$ref": "#/definitions/main.TenantRole"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "tenant_name": {
+          "type": "string"
+        }
+      }
+    },
+    "main.TenantRole": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "admin",
+        "member"
+      ],
+      "x-enum-varnames": [
+        "TenantRoleOwner",
+        "TenantRoleAdmin",
+        "TenantRoleMember"
+      ]
+    },
+    "main.TenantStatistics": {
+      "type": "object",
+      "properties": {
+        "average_session_duration_seconds": {
+          "description": "seconds",
+          "type": "integer"
+        },
+        "max_session_duration_seconds": {
+          "description": "seconds",
+          "type": "integer"
+        },
+        "min_session_duration_seconds": {
+          "description": "seconds",
+          "type": "integer"
+        },
+        "top_questions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.QuestionStat"
+          }
+        },
+        "total_chats": {
+          "type": "integer"
+        },
+        "unique_users": {
+          "type": "integer"
+        },
+        "user_emails": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "main.TenantUsageHistoryItem": {
+      "type": "object",
+      "properties": {
+        "cycle_end_date": {
+          "type": "string"
+        },
+        "cycle_start_date": {
+          "type": "string"
+        },
+        "monthly_limit": {
+          "type": "integer"
+        },
+        "used_credits": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.TenantUsageResponse": {
+      "type": "object",
+      "properties": {
+        "account_type": {
+          "$ref": "#/definitions/main.AccountType"
+        },
+        "cycle_end_date": {
+          "type": "string"
+        },
+        "cycle_start_date": {
+          "type": "string"
+        },
+        "days_remaining": {
+          "type": "integer"
+        },
+        "monthly_limit": {
+          "type": "integer"
+        },
+        "remaining_credits": {
+          "type": "integer"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "usage_percentage": {
+          "type": "number"
+        },
+        "used_credits": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.TokenUsageItem": {
+      "type": "object",
+      "properties": {
+        "completion_tokens": {
+          "type": "integer"
+        },
+        "cost_usd": {
+          "description": "total cost in USD",
+          "type": "number"
+        },
+        "email": {
+          "type": "string"
+        },
+        "last_activity_at": {
+          "type": "string"
+        },
+        "message_count": {
+          "type": "integer"
+        },
+        "prompt_tokens": {
+          "type": "integer"
+        },
+        "session_duration_seconds": {
+          "description": "seconds",
+          "type": "integer"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "total_tokens": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.TokenUsageResponse": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.TokenUsageItem"
+          }
+        },
+        "page": {
+          "type": "integer"
+        },
+        "page_size": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.TopicStatItem": {
+      "type": "object",
+      "properties": {
+        "average_confidence": {
+          "type": "number"
+        },
+        "count": {
+          "type": "integer"
+        },
+        "example_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "percentage": {
+          "type": "number"
+        },
+        "topic": {
+          "type": "string"
+        }
+      }
+    },
+    "main.TopicStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "most_common_topic": {
+          "type": "string"
+        },
+        "sessions_analyzed": {
+          "type": "integer"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.TopicStatItem"
+          }
+        },
+        "total_topics": {
+          "type": "integer"
+        },
+        "unanalyzed_sessions": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.UpdateDocumentStatusRequest": {
+      "type": "object",
+      "properties": {
+        "is_active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "main.UpdateProfileRequest": {
+      "type": "object",
+      "properties": {
+        "current_password": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        }
+      }
+    },
+    "main.UpdateTenantRequest": {
+      "type": "object",
+      "properties": {
+        "account_type": {
+          "$ref": "#/definitions/main.AccountType"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "main.UploadQADocumentRequest": {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "question": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "main.UploadTextDocumentRequest": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "main.User": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        }
+      }
+    },
+    "main.UserSessionMessage": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "main.UserSessionStats": {
+      "type": "object",
+      "properties": {
+        "assistant_message_count": {
+          "type": "integer"
+        },
+        "avg_confidence_score": {
+          "type": "number"
+        },
+        "closed_at": {
+          "type": "string"
+        },
+        "cost_usd": {
+          "type": "number"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "dominant_confidence_level": {
+          "type": "string"
+        },
+        "feedback_negative_count": {
+          "type": "integer"
+        },
+        "feedback_positive_count": {
+          "type": "integer"
+        },
+        "feedback_rated_count": {
+          "type": "integer"
+        },
+        "first_message_preview": {
+          "type": "string"
+        },
+        "last_activity_at": {
+          "type": "string"
+        },
+        "last_message_preview": {
+          "type": "string"
+        },
+        "last_model": {
+          "type": "string"
+        },
+        "message_count": {
+          "type": "integer"
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/main.UserSessionMessage"
+          }
+        },
+        "question_count": {
+          "type": "integer"
+        },
+        "sentiment": {
+          "type": "string"
+        },
+        "sentiment_confidence": {
+          "type": "number"
+        },
+        "sentiment_score": {
+          "type": "number"
+        },
+        "session_duration_seconds": {
+          "type": "integer"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "session_status": {
+          "type": "string"
+        },
+        "topic_confidence": {
+          "type": "number"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "total_completion_tokens": {
+          "type": "integer"
+        },
+        "total_prompt_tokens": {
+          "type": "integer"
+        },
+        "total_tokens": {
+          "type": "integer"
+        },
+        "user_message_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "main.VerifyWidgetResult": {
+      "type": "object",
+      "properties": {
+        "checked_at": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "main.WidgetInitResponse": {
+      "type": "object",
+      "properties": {
+        "expires_at": {
+          "type": "integer"
+        },
+        "widget_token": {
+          "type": "string"
+        }
+      }
+    },
+    "main.WidgetPingRequest": {
+      "type": "object",
+      "required": [
+        "site_public_key"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "site_public_key": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
       }
     }
   }

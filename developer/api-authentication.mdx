@@ -1,0 +1,59 @@
+---
+title: "API Authentication (API Key)"
+description: "How to create, validate, rotate, and revoke API keys for M2M usage."
+---
+
+## Prerequisites
+
+- Tenant plan: `level2` or `level3`
+- User role: `owner`
+- Access to `/settings/api-access`
+
+## Create API key
+
+1. Open API Access page
+2. Enter key name
+3. Set optional expiry
+4. Create key and store plaintext value securely
+
+Note:
+
+- Plaintext key is typically shown once.
+
+## Use in requests
+
+```http
+X-API-Key: <YOUR_API_KEY>
+```
+
+First connectivity check:
+
+```bash
+curl -X GET "https://api.uppzy.com/api/v1/m2m/tenants/<TENANT_ID>/limits" \
+  -H "X-API-Key: <YOUR_API_KEY>"
+```
+
+## Rotation and revocation policy
+
+- Rotate periodically
+- Revoke unused keys quickly
+
+Suggested production sequence:
+
+1. Rotate/create new key
+2. Deploy application with new key
+3. Verify traffic
+4. Revoke old key
+
+## Typical error codes
+
+- `401`: missing/invalid/expired key
+- `403`: plan/role requirement not met
+- `404`: tenant/site not found
+- `429`: rate-limited
+
+## Production standards
+
+- Separate keys per environment
+- Keep keys server-side only
+- Log and monitor key-based traffic

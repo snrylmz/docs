@@ -1,0 +1,63 @@
+---
+title: "Core Concepts"
+description: "Data model and object relationships in Uppzy."
+---
+
+## Tenant
+
+A tenant is your top-level workspace.
+Plans, limits, team membership, and most management operations are tenant-scoped.
+
+## Roles
+
+- `owner`: highest control
+- `admin`: operational management
+- `member`: usage-focused access
+
+Role differences are most visible in team and API key management.
+
+## Site (Domain)
+
+Each tenant can contain one or more sites.
+A site is the primary unit for chatbot configuration.
+
+Core fields:
+
+- `id`
+- `domain`
+- `public_key`
+- `widget_status`
+- `last_widget_check`
+- `last_widget_ping`
+
+## Widget identity
+
+`public_key` is used in embed code.
+It binds the widget to the correct site configuration.
+
+## Knowledge base documents
+
+All knowledge sources are attached to a site.
+
+Two critical status fields:
+
+- `is_active`: whether the content is used for responses
+- `indexed`: whether the content is processed and available
+
+## Sessions
+
+Conversations are tracked by session.
+Session data powers:
+
+- Statistics
+- All Sessions
+- Chat History
+
+## Credits and limits
+
+Usage is tracked at tenant level.
+The UI exposes:
+
+- Usage percentage
+- Used/total credits
+- Cycle end date

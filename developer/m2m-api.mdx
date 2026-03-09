@@ -1,0 +1,151 @@
+---
+title: "M2M API Overview"
+description: "Endpoint groups, payload contracts, and integration flow for API-key based server-to-server usage."
+---
+
+## Base URL
+
+```text
+https://api.uppzy.com/api/v1
+```
+
+## Authentication
+
+All M2M requests require:
+
+```http
+X-API-Key: <YOUR_API_KEY>
+```
+
+Typical header set:
+
+```http
+X-API-Key: <YOUR_API_KEY>
+Content-Type: application/json
+```
+
+## Endpoint groups
+
+### Tenant
+
+- `GET /m2m/tenants/{id}`
+- `GET /m2m/tenants/{id}/limits`
+- `GET /m2m/tenants/{id}/usage`
+- `GET /m2m/tenants/{id}/usage/history`
+- `GET /m2m/tenants/{id}/statistics`
+
+### Site
+
+- `GET /m2m/sites/{id}`
+- `GET /m2m/sites/{id}/statistics`
+- `GET /m2m/sites/{id}/sessions`
+- `GET /m2m/sites/{id}/users/{email}/statistics`
+- `GET /m2m/sites/{id}/widget-config`
+- `PATCH /m2m/sites/{id}/widget-config`
+
+### Documents
+
+- `GET /m2m/sites/{id}/documents`
+- `POST /m2m/sites/{id}/documents`
+- `POST /m2m/sites/{id}/documents/text`
+- `POST /m2m/sites/{id}/documents/qa`
+- `PATCH /m2m/sites/{id}/documents/{docId}`
+- `PATCH /m2m/sites/{id}/documents/bulk-status`
+- `POST /m2m/sites/{id}/documents/bulk-delete`
+
+### Chat
+
+- `POST /m2m/sites/{id}/chat`
+- `POST /m2m/sites/{id}/chat/async`
+- `GET /m2m/sites/{id}/chat/requests/{requestId}`
+- `POST /m2m/sites/{id}/chat/feedback`
+- `POST /m2m/sites/{id}/chat/session/close`
+
+## Recommended integration flow
+
+1. Validate connectivity with `limits`
+2. Lock tenant/site IDs in app config
+3. Upload and activate core documents
+4. Start with sync chat, then add async if needed
+5. Track quality with feedback + analytics endpoints
+
+## Chat payload contract
+
+```json
+{
+  "session_id": "sess_123",
+  "message": "What is my shipping ETA?",
+  "email": "user@example.com",
+  "model": "openai:gpt-4o-mini",
+  "ui_locale": "en",
+  "response_language": "en"
+}
+```
+
+## Typical response shapes
+
+### Sync response
+
+```json
+{
+  "session_id": "sess_123",
+  "request_id": "req_abc",
+  "answer": "...",
+  "confidence_level": "high",
+  "confidence_score": 92
+}
+```
+
+### Async initial response
+
+```json
+{
+  "request_id": "req_abc",
+  "session_id": "sess_123",
+  "status": "pending",
+  "placeholder": ""
+}
+```
+
+### Async status response
+
+```json
+{
+  "request_id": "req_abc",
+  "session_id": "sess_123",
+  "status": "completed",
+  "answer": "..."
+}
+```
+
+## Document payload contracts
+
+### Text
+
+```json
+{
+  "title": "Return Policy",
+  "content": "Returns are accepted within 14 days...",
+  "category": "policy"
+}
+```
+
+### QA
+
+```json
+{
+  "title": "Shipping FAQ",
+  "question": "How long does shipping take?",
+  "answer": "Standard delivery is 1-3 business days.",
+  "category": "faq"
+}
+```
+
+## Error code guidance
+
+- `400`: invalid payload
+- `401`: missing/invalid API key
+- `403`: plan/role requirement not met
+- `404`: tenant/site/document not found
+- `429`: rate limit reached
+- `5xx`: transient service issue

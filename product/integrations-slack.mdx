@@ -1,0 +1,40 @@
+---
+title: "Slack Integration"
+description: "Connect Slack workspace, toggle runtime state, and manage ongoing operations."
+---
+
+## Where to manage
+
+Use the Slack card on `/:siteId/integrations`.
+
+## Card states
+
+- Not connected: `Connect Slack`
+- Connected: `Integration Details`
+- Active/inactive switch
+
+## Setup flow
+
+1. Click `Connect Slack`
+2. Complete workspace authorization
+3. Return and confirm connected state
+
+## Details modal fields
+
+- `team_name`
+- `team_id`
+
+## Operational actions
+
+- Toggle integration on/off
+- Remove integration with `Delete`
+
+## Post-setup checks
+
+- Correct workspace is connected
+- Switch is enabled for active usage
+- Mention-based test flow behaves as expected
+
+## Operational note
+
+If tenant has multiple sites, always validate that integration is enabled on the intended site.
